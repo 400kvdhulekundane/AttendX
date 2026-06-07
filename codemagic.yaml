@@ -1,0 +1,35 @@
+workflows:
+  android-build:
+    name: Android APK Build
+    max_build_duration: 60
+    environment:
+      java: 17
+      node: 20
+    scripts:
+      - name: Install npm dependencies
+        script: npm install --legacy-peer-deps
+
+      - name: Build web app
+        script: npm run build
+
+      - name: Sync Capacitor
+        script: npx cap sync android
+
+      - name: Set gradlew permission
+        script: chmod +x android/gradlew
+
+      - name: Build debug APK
+        script: |
+          cd android
+          ./gradlew assembleDebug
+
+    artifacts:
+      - android/app/build/outputs/apk/debug/app-debug.apk
+
+    publishing:
+      email:
+        recipients:
+          - pritambhadane@gmail.com
+        notify:
+          success: true
+          failure: true 

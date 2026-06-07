@@ -3,7 +3,6 @@ workflows:
     name: Android APK Build
     max_build_duration: 60
     environment:
-      environment:
       java: 21
       node: 22
       groups:
@@ -11,31 +10,25 @@ workflows:
     scripts:
       - name: Install npm dependencies
         script: npm install --legacy-peer-deps
-
       - name: Build web app
         script: |
           echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL" > .env
           echo "VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY" >> .env
           npm run build
-
       - name: Sync Capacitor
         script: npx cap sync android
-
       - name: Set gradlew permission
         script: chmod +x android/gradlew
-
       - name: Build debug APK
         script: |
           cd android
           ./gradlew assembleDebug
-
     artifacts:
       - android/app/build/outputs/apk/debug/app-debug.apk
-
     publishing:
       email:
         recipients:
           - pritambhadane@gmail.com
         notify:
           success: true
-          failure: true 
+          failure: true

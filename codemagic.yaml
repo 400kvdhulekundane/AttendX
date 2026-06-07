@@ -10,21 +10,30 @@ workflows:
     scripts:
       - name: Install npm dependencies
         script: npm install --legacy-peer-deps
+
       - name: Build web app
         script: |
           echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL" > .env
           echo "VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY" >> .env
           npm run build
-      - name: Sync Capacitor
+
+      - name: Copy web assets to Android
+        script: npx cap copy android
+
+      - name: Sync Capacitor plugins
         script: npx cap sync android
+
       - name: Set gradlew permission
         script: chmod +x android/gradlew
+
       - name: Build debug APK
         script: |
           cd android
           ./gradlew assembleDebug
+
     artifacts:
       - android/app/build/outputs/apk/debug/app-debug.apk
+
     publishing:
       email:
         recipients:

@@ -74,16 +74,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return;
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id).finally(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    });
+    const timeout = setTimeout(() => {
+  if (mounted) setLoading(false);
+}, 5000); // force stop loading after 5 seconds
+
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (!mounted) return;
+  clearTimeout(timeout);
+  setSession(session);
+  setUser(session?.user ?? null);
+  if (session?.user) {
+    fetchProfile(session.user.id).finally(() => setLoading(false));
+  } else {
+    setLoading(false);
+  }
+});
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
